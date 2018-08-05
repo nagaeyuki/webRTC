@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <title>Movie Panorama Example</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+        body {
+            margin: 0px;
+            overflow: hidden;
+        }
+
+        #buttonbar {
+            position: fixed;
+            bottom: 50px;
+            right: 50px;
+        }
+
+        #play {
+            width: 60px;
+            height: 60px;
+            background: #F26964;
+            border: 3px solid #fff;
+            border-radius: 70px;
+            -moz-border-radius: 70px;
+            -webkit-border-radius: 70px;
+            color: #fff;
+            line-height: 60px;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        #play:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="stage"></div>
+
+    <div id="buttonbar">
+        <div id="play">||</div>
+    </div>
+
+    <script src="three.min.js"></script>
+    <script src="OrbitControls.js"></script>
+
+    <script>
+        (function () {
+            var width = 200,
+                height = 200;
+            var button;
+            //scene
+            var scene = new THREE.Scene();
+            //mesh
+            var geometry = new THREE.SphereGeometry(5, 60, 40);
+            geometry.scale(- 1, 1, 1);
+            //動画
+            var video = document.createElement('video');
+            video.width = 1920;
+            video.height = 960;
+            video.autoplay = true;
+            video.loop = true;
+            video.src = "test.MP4";
+            var texture = new THREE.VideoTexture(video);
+            texture.minFilter = THREE.LinearFilter;
+            var material = new THREE.MeshBasicMaterial({ map: texture });
+            //静止画
+            /*var material = new THREE.MeshBasicMaterial( {
+               map: THREE.ImageUtils.loadTexture( 'test.jpg' )
+            } );*/
+            sphere = new THREE.Mesh(geometry, material);
+            scene.add(sphere);
+            //camera
+            var camera = new THREE.PerspectiveCamera(75, width / height, 1, 1000);
+            camera.position.set(0, 0, 0.1);
+            camera.lookAt(sphere.position);
+            //helper
+            var axis = new THREE.AxisHelper(1000);
+            axis.position.set(0, 0, 0);
+            scene.add(axis);
+            //render
+            var renderer = new THREE.WebGLRenderer();
+            renderer.setSize(width, height);
+            renderer.setClearColor({ color: 0x000000 });
+            document.getElementById('stage').appendChild(renderer.domElement);
+            renderer.render(scene, camera);
+            //control
+            var controls = new THREE.OrbitControls(camera, renderer.domElement);
+            function render() {
+                requestAnimationFrame(render);
+                window.addEventListener('resize', onWindowResize, false);
+                renderer.render(scene, camera);
+                button = document.getElementById("play");
+                button.addEventListener('click', vidplay, false);
+                controls.update();
+            }
+            render();
+            function onWindowResize() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+            function vidplay() {
+                if (video.paused) {
+                    video.play();
+                    button.textContent = "||";
+                    button.style.backgroundColor = "#F26964";
+                } else {
+                    video.pause();
+                    button.textContent = ">";
+                    button.style.backgroundColor = "#1253A4";
+                }
+            }
+        })();
+    </script>
+</body>
+
+</html>
